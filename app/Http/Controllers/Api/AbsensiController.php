@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\AbsensiRequest;
 use App\Models\Absensi;
 use App\Models\Siswa;
@@ -9,7 +10,6 @@ use Carbon\Carbon;
 
 class AbsensiController extends Controller
 {
-
     // Menyimpan absensi masuk atau pulang
     public function absen(AbsensiRequest $request)
     {

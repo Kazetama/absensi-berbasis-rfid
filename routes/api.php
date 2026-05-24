@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\AbsensiController;
-use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\Api\AbsensiController;
+use App\Http\Controllers\Api\SiswaController;
 use Illuminate\Support\Facades\Route;
 
 // API untuk siswa
