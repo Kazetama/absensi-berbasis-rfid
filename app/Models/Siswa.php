@@ -20,4 +20,10 @@ class Siswa extends Model
         'kelas',
         'nis',
     ];
+
+    // Relasi: Satu siswa memiliki banyak absensi
+    public function absensi()
+    {
+        return $this->hasMany(Absensi::class);
+    }
 }

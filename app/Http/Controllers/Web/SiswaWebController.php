@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class SiswaWebController extends Controller
 {
@@ -18,8 +18,8 @@ class SiswaWebController extends Controller
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('nama', 'like', "%{$search}%")
-                      ->orWhere('uid_kartu', 'like', "%{$search}%")
-                      ->orWhere('nis', 'like', "%{$search}%");
+                        ->orWhere('uid_kartu', 'like', "%{$search}%")
+                        ->orWhere('nis', 'like', "%{$search}%");
                 });
             })
             ->when($kelas, function ($query, $kelas) {
@@ -28,7 +28,7 @@ class SiswaWebController extends Controller
             ->latest()
             ->paginate(10)
             ->withQueryString();
-        
+
         // Ambil daftar kelas unik untuk dropdown filter
         $kelasList = Siswa::query()
             ->where('kelas', '!=', null)
@@ -43,7 +43,7 @@ class SiswaWebController extends Controller
                 'search' => $search ?? '',
                 'kelas' => $kelas ?? '',
             ],
-            'kelasList' => $kelasList
+            'kelasList' => $kelasList,
         ]);
     }
 

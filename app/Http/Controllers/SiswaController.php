@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\Api\SiswaRequest;
 use App\Models\Siswa;
 
@@ -48,7 +47,7 @@ class SiswaController extends Controller
     {
         $siswa = Siswa::query()->where('uid_kartu', $uid_kartu)->first();
 
-        if (!$siswa) {
+        if (! $siswa) {
             return response()->json(['message' => 'Siswa tidak ditemukan'], 404);
         }
 
