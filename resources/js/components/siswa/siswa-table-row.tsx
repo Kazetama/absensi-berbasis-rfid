@@ -1,7 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Siswa } from "@/types/siswa";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Trash2, User } from "lucide-react";
+import { MoreHorizontal, Trash2, User, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -11,8 +11,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
-import { router } from "@inertiajs/react";
+import { useState, useEffect } from "react";
+import { router, useForm } from "@inertiajs/react";
 import {
     Dialog,
     DialogContent,
@@ -20,10 +20,25 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        nama: siswa.nama || '',
+        nis: siswa.nis || '',
+        kelas: siswa.kelas || '',
+        nomor_orangtua: siswa.nomor_orangtua || '',
+        alamat: siswa.alamat || '',
+        gambar: null as File | null,
+    });
 
     const handleDelete = () => {
         router.delete(`/siswa/${siswa.id}`, {
@@ -31,13 +46,69 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
         });
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData('gambar', file);
+            setPreviewUrl(URL.createObjectURL(file));
+        } else {
+            setData('gambar', null);
+            setPreviewUrl(null);
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(`/siswa/${siswa.id}`, {
+            onSuccess: () => {
+                setIsEditDialogOpen(false);
+                setPreviewUrl(null);
+                reset('gambar');
+            },
+        });
+    };
+
+    useEffect(() => {
+        if (isEditDialogOpen) {
+            setData({
+                nama: siswa.nama || '',
+                nis: siswa.nis || '',
+                kelas: siswa.kelas || '',
+                nomor_orangtua: siswa.nomor_orangtua || '',
+                alamat: siswa.alamat || '',
+                gambar: null,
+            });
+            setPreviewUrl(null);
+        }
+    }, [isEditDialogOpen, siswa]);
+
+    useEffect(() => {
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
     return (
         <>
             <TableRow>
                 <TableCell className="font-medium text-center">{index + 1}</TableCell>
                 <TableCell className="font-mono text-xs">{siswa.uid_kartu}</TableCell>
                 <TableCell>{siswa.nis || "-"}</TableCell>
-                <TableCell className="font-medium">{siswa.nama || "-"}</TableCell>
+                <TableCell className="font-medium">
+                    <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                            {siswa.gambar ? (
+                                <AvatarImage src={`/storage/${siswa.gambar}`} alt={siswa.nama || ''} className="object-cover" />
+                            ) : null}
+                            <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                                {siswa.nama ? siswa.nama.substring(0, 2).toUpperCase() : '?' }
+                            </AvatarFallback>
+                        </Avatar>
+                        <span>{siswa.nama || "-"}</span>
+                    </div>
+                </TableCell>
                 <TableCell>{siswa.kelas || "-"}</TableCell>
                 <TableCell>{siswa.nomor_orangtua || "-"}</TableCell>
                 <TableCell>
@@ -61,6 +132,10 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                                 <User className="mr-2 h-4 w-4" />
                                 Lihat Profile
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit Data
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 focus:text-red-600">
                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -72,39 +147,166 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
             </TableRow>
 
             <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-[420px]">
                     <DialogHeader>
                         <DialogTitle>Profile Siswa</DialogTitle>
                         <DialogDescription>
                             Informasi detail mengenai data siswa yang terdaftar.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-medium">Nama</span>
-                            <span className="col-span-3">{siswa.nama || "-"}</span>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-medium">UID Kartu</span>
-                            <span className="col-span-3 font-mono text-sm bg-muted p-1 rounded w-fit">{siswa.uid_kartu}</span>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-medium">NIS</span>
-                            <span className="col-span-3">{siswa.nis || "-"}</span>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-medium">Kelas</span>
-                            <span className="col-span-3">{siswa.kelas || "-"}</span>
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-medium">No. Telepon</span>
-                            <span className="col-span-3">{siswa.nomor_orangtua || "-"}</span>
-                        </div>
-                        <div className="grid grid-cols-4 items-start gap-4">
-                            <span className="font-medium">Alamat</span>
-                            <span className="col-span-3">{siswa.alamat || "-"}</span>
+                    <div className="flex flex-col items-center gap-3 py-4 border-b">
+                        <Avatar className="h-24 w-24 border shadow-sm">
+                            {siswa.gambar ? (
+                                <AvatarImage src={`/storage/${siswa.gambar}`} alt={siswa.nama || ''} className="object-cover" />
+                            ) : null}
+                            <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
+                                {siswa.nama ? siswa.nama.substring(0, 2).toUpperCase() : '?' }
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="text-center">
+                            <h3 className="font-semibold text-lg">{siswa.nama || "Belum Ada Nama"}</h3>
+                            <p className="text-sm text-muted-foreground font-mono bg-muted px-2 py-0.5 rounded-full inline-block mt-1">{siswa.uid_kartu}</p>
                         </div>
                     </div>
+                    <div className="grid gap-3 py-4">
+                        <div className="grid grid-cols-3 items-center gap-4">
+                            <span className="font-medium text-sm text-muted-foreground">NIS</span>
+                            <span className="col-span-2 text-sm font-medium">{siswa.nis || "-"}</span>
+                        </div>
+                        <div className="grid grid-cols-3 items-center gap-4">
+                            <span className="font-medium text-sm text-muted-foreground">Kelas</span>
+                            <span className="col-span-2 text-sm font-medium">{siswa.kelas || "-"}</span>
+                        </div>
+                        <div className="grid grid-cols-3 items-center gap-4">
+                            <span className="font-medium text-sm text-muted-foreground">No. Telepon WA</span>
+                            <span className="col-span-2 text-sm font-medium">{siswa.nomor_orangtua || "-"}</span>
+                        </div>
+                        <div className="grid grid-cols-3 items-start gap-4">
+                            <span className="font-medium text-sm text-muted-foreground">Alamat</span>
+                            <span className="col-span-2 text-sm font-medium whitespace-pre-wrap">{siswa.alamat || "-"}</span>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit Data Siswa</DialogTitle>
+                        <DialogDescription>
+                            Perbarui informasi data siswa di bawah ini. UID Kartu tidak dapat diubah.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit} className="space-y-4 py-2">
+                        {/* UID Kartu (Read-only) */}
+                        <div className="space-y-2">
+                            <Label htmlFor="uid_kartu">UID Kartu</Label>
+                            <Input
+                                id="uid_kartu"
+                                value={siswa.uid_kartu}
+                                disabled
+                                className="bg-muted cursor-not-allowed font-mono opacity-80"
+                            />
+                        </div>
+
+                        {/* NIS */}
+                        <div className="space-y-2">
+                            <Label htmlFor="nis">NIS</Label>
+                            <Input
+                                id="nis"
+                                value={data.nis}
+                                onChange={(e) => setData('nis', e.target.value)}
+                                placeholder="Masukkan NIS..."
+                            />
+                            {errors.nis && <p className="text-xs text-destructive">{errors.nis}</p>}
+                        </div>
+
+                        {/* Nama Siswa */}
+                        <div className="space-y-2">
+                            <Label htmlFor="nama">Nama Siswa</Label>
+                            <Input
+                                id="nama"
+                                value={data.nama}
+                                onChange={(e) => setData('nama', e.target.value)}
+                                placeholder="Masukkan Nama Siswa..."
+                                required
+                            />
+                            {errors.nama && <p className="text-xs text-destructive">{errors.nama}</p>}
+                        </div>
+
+                        {/* Kelas */}
+                        <div className="space-y-2">
+                            <Label htmlFor="kelas">Kelas</Label>
+                            <Input
+                                id="kelas"
+                                value={data.kelas}
+                                onChange={(e) => setData('kelas', e.target.value)}
+                                placeholder="Masukkan Kelas..."
+                            />
+                            {errors.kelas && <p className="text-xs text-destructive">{errors.kelas}</p>}
+                        </div>
+
+                        {/* No Telepon Orangtua */}
+                        <div className="space-y-2">
+                            <Label htmlFor="nomor_orangtua">No. Telepon Orang Tua</Label>
+                            <Input
+                                id="nomor_orangtua"
+                                value={data.nomor_orangtua}
+                                onChange={(e) => setData('nomor_orangtua', e.target.value)}
+                                placeholder="Masukkan nomor telepon whatsapp..."
+                            />
+                            {errors.nomor_orangtua && <p className="text-xs text-destructive">{errors.nomor_orangtua}</p>}
+                        </div>
+
+                        {/* Alamat */}
+                        <div className="space-y-2">
+                            <Label htmlFor="alamat">Alamat</Label>
+                            <Textarea
+                                id="alamat"
+                                value={data.alamat}
+                                onChange={(e) => setData('alamat', e.target.value)}
+                                placeholder="Masukkan alamat lengkap..."
+                            />
+                            {errors.alamat && <p className="text-xs text-destructive">{errors.alamat}</p>}
+                        </div>
+
+                        {/* Foto / Gambar Siswa */}
+                        <div className="space-y-2">
+                            <Label htmlFor="gambar">Foto Siswa</Label>
+                            <div className="flex items-center gap-4">
+                                <Avatar className="h-16 w-16 border animate-in fade-in zoom-in-95 duration-200">
+                                    {previewUrl ? (
+                                        <AvatarImage src={previewUrl} className="object-cover" />
+                                    ) : (
+                                        siswa.gambar && <AvatarImage src={`/storage/${siswa.gambar}`} className="object-cover" />
+                                    )}
+                                    <AvatarFallback className="text-lg bg-primary/10 text-primary">
+                                        {data.nama ? data.nama.substring(0, 2).toUpperCase() : '?' }
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="grid w-full items-center gap-1.5">
+                                    <Input
+                                        id="gambar"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="cursor-pointer"
+                                    />
+                                    <span className="text-xs text-muted-foreground">Format: JPG, JPEG, PNG. Maks: 2MB</span>
+                                </div>
+                            </div>
+                            {errors.gambar && <p className="text-xs text-destructive">{errors.gambar}</p>}
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-4 border-t">
+                            <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                                Batal
+                            </Button>
+                            <Button type="submit" disabled={processing}>
+                                {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                            </Button>
+                        </div>
+                    </form>
                 </DialogContent>
             </Dialog>
 
