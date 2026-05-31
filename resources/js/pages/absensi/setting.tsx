@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Settings, ShieldAlert, Clock, Power } from 'lucide-react';
+import { Settings, Clock, Power, Save } from 'lucide-react';
 
 interface SettingData {
     id: number;
@@ -47,171 +47,184 @@ export default function AbsensiSetting({ setting }: Props) {
         <>
             <Head title="Pengaturan Absensi" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 p-6 max-w-4xl mx-auto">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <div className="flex h-full flex-1 flex-col gap-8 p-6 max-w-4xl mx-auto">
+                {/* Header Page */}
+                <div className="flex flex-col gap-1.5 border-b pb-4">
+                    <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl flex items-center gap-2">
+                        <Settings className="h-7 w-7 text-primary" />
                         Pengaturan Absensi
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                        Atur aturan rentang jam masuk, jam pulang, toleransi keterlambatan, dan status buka-tutup sistem absensi.
+                        Kelola aturan jam masuk, jam pulang, toleransi keterlambatan, dan status operasional sistem.
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Card Status Aktif/Tutup */}
-                    <Card className="border-sidebar-border/70 dark:border-sidebar-border shadow-sm overflow-hidden">
-                        <div className={`h-1.5 w-full ${data.is_active ? 'bg-green-500' : 'bg-rose-500'}`} />
-                        <CardHeader>
-                            <div className="flex items-center justify-between gap-4">
-                                <div className="space-y-1">
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Power className="h-5 w-5 text-muted-foreground" />
-                                        Status Mesin Absensi
-                                    </CardTitle>
-                                    <CardDescription>
-                                        Buka atau tutup sistem absensi RFID. Jika ditutup, semua tap kartu akan ditolak otomatis.
-                                    </CardDescription>
-                                </div>
-                                
-                                {/* Custom Toggle Switch */}
-                                <button
-                                    type="button"
-                                    onClick={() => setData('is_active', !data.is_active)}
-                                    className={`${
-                                        data.is_active ? 'bg-green-600' : 'bg-rose-600'
-                                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
-                                >
-                                    <span
-                                        aria-hidden="true"
-                                        className={`${
-                                            data.is_active ? 'translate-x-5' : 'translate-x-0'
-                                        } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-background shadow ring-0 transition duration-200 ease-in-out`}
-                                    />
-                                </button>
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    
+                    {/* Card Status Operasional */}
+                    <Card className="border-sidebar-border/70 dark:border-sidebar-border shadow-sm">
+                        <CardHeader className="flex flex-row items-center justify-between p-6">
+                            <div className="space-y-1.5 pr-4">
+                                <CardTitle className="flex items-center gap-2.5">
+                                    <Power className="h-5 w-5 text-muted-foreground" />
+                                    Status Mesin Absensi
+                                    {/* Indikator Titik Status */}
+                                    <span className="relative flex h-3 w-3 ml-2">
+                                        {data.is_active && (
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                        )}
+                                        <span className={`relative inline-flex rounded-full h-3 w-3 ${data.is_active ? 'bg-green-500' : 'bg-rose-500'}`}></span>
+                                    </span>
+                                </CardTitle>
+                                <CardDescription>
+                                    Buka atau tutup akses sistem absensi RFID. Jika dimatikan, semua tap kartu akan ditolak secara otomatis.
+                                </CardDescription>
                             </div>
+                            
+                            {/* Toggle Switch */}
+                            <button
+                                type="button"
+                                onClick={() => setData('is_active', !data.is_active)}
+                                className={`${
+                                    data.is_active ? 'bg-green-500' : 'bg-rose-500'
+                                } relative inline-flex h-7 w-14 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                            >
+                                <span
+                                    aria-hidden="true"
+                                    className={`${
+                                        data.is_active ? 'translate-x-7' : 'translate-x-0'
+                                    } pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out`}
+                                />
+                            </button>
                         </CardHeader>
                     </Card>
 
-                    {/* Rentang Absen Masuk */}
-                    <Card className="border-sidebar-border/70 dark:border-sidebar-border shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                    {/* Card Rentang Absen Masuk */}
+                    <Card className="border-sidebar-border/70 dark:border-sidebar-border shadow-sm overflow-hidden">
+                        <CardHeader className="border-b bg-muted/20 pb-4">
+                            <CardTitle className="flex items-center gap-2 text-lg">
                                 <Clock className="h-5 w-5 text-blue-500" />
-                                Rentang Absen Masuk
+                                Konfigurasi Absen Masuk
                             </CardTitle>
                             <CardDescription>
-                                Tentukan batas jam bagi siswa untuk menge-tap masuk di pagi hari.
+                                Tentukan batas waktu operasional pemindaian kartu di pagi hari.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid gap-6 md:grid-cols-3">
-                                <div className="space-y-2">
+                        <CardContent className="p-6">
+                            <div className="grid gap-6 sm:grid-cols-3">
+                                <div className="space-y-2.5">
                                     <Label htmlFor="jam_masuk_mulai">Jam Buka Absen</Label>
                                     <Input
                                         id="jam_masuk_mulai"
                                         type="time"
                                         value={data.jam_masuk_mulai}
                                         onChange={(e) => setData('jam_masuk_mulai', e.target.value)}
+                                        className="w-full"
                                     />
-                                    <span className="text-[11px] text-muted-foreground block">
-                                        Waktu paling awal siswa dapat mulai tap masuk.
-                                    </span>
+                                    <p className="text-[12px] text-muted-foreground leading-tight">
+                                        Waktu paling awal mesin menerima tap masuk.
+                                    </p>
                                     {errors.jam_masuk_mulai && (
-                                        <p className="text-xs text-rose-500 font-semibold">{errors.jam_masuk_mulai}</p>
+                                        <p className="text-xs text-rose-500 font-medium">{errors.jam_masuk_mulai}</p>
                                     )}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="jam_masuk_batas">Jam Mulai Terlambat</Label>
+                                <div className="space-y-2.5">
+                                    <Label htmlFor="jam_masuk_batas">Batas Normal (Terlambat)</Label>
                                     <Input
                                         id="jam_masuk_batas"
                                         type="time"
                                         value={data.jam_masuk_batas}
                                         onChange={(e) => setData('jam_masuk_batas', e.target.value)}
+                                        className="w-full"
                                     />
-                                    <span className="text-[11px] text-muted-foreground block">
-                                        Waktu toleransi normal. Lewat jam ini berstatus Terlambat.
-                                    </span>
+                                    <p className="text-[12px] text-muted-foreground leading-tight">
+                                        Tap setelah jam ini akan dicatat sebagai Terlambat.
+                                    </p>
                                     {errors.jam_masuk_batas && (
-                                        <p className="text-xs text-rose-500 font-semibold">{errors.jam_masuk_batas}</p>
+                                        <p className="text-xs text-rose-500 font-medium">{errors.jam_masuk_batas}</p>
                                     )}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="jam_masuk_selesai">Batas Maksimal Masuk</Label>
+                                <div className="space-y-2.5">
+                                    <Label htmlFor="jam_masuk_selesai">Jam Tutup Absen</Label>
                                     <Input
                                         id="jam_masuk_selesai"
                                         type="time"
                                         value={data.jam_masuk_selesai}
                                         onChange={(e) => setData('jam_masuk_selesai', e.target.value)}
+                                        className="w-full"
                                     />
-                                    <span className="text-[11px] text-muted-foreground block">
-                                        Waktu paling akhir tap masuk diizinkan oleh alat.
-                                    </span>
+                                    <p className="text-[12px] text-muted-foreground leading-tight">
+                                        Waktu paling akhir tap masuk diizinkan mesin.
+                                    </p>
                                     {errors.jam_masuk_selesai && (
-                                        <p className="text-xs text-rose-500 font-semibold">{errors.jam_masuk_selesai}</p>
+                                        <p className="text-xs text-rose-500 font-medium">{errors.jam_masuk_selesai}</p>
                                     )}
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Rentang Absen Pulang */}
-                    <Card className="border-sidebar-border/70 dark:border-sidebar-border shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                    {/* Card Rentang Absen Pulang */}
+                    <Card className="border-sidebar-border/70 dark:border-sidebar-border shadow-sm overflow-hidden">
+                        <CardHeader className="border-b bg-muted/20 pb-4">
+                            <CardTitle className="flex items-center gap-2 text-lg">
                                 <Clock className="h-5 w-5 text-amber-500" />
-                                Rentang Absen Pulang
+                                Konfigurasi Absen Pulang
                             </CardTitle>
                             <CardDescription>
-                                Tentukan batas jam bagi siswa untuk menge-tap pulang di sore hari.
+                                Tentukan batas waktu operasional pemindaian kartu di sore hari.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid gap-6 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="jam_pulang_mulai">Jam Buka Absen Pulang</Label>
+                        <CardContent className="p-6">
+                            <div className="grid gap-6 sm:grid-cols-2">
+                                <div className="space-y-2.5">
+                                    <Label htmlFor="jam_pulang_mulai">Jam Mulai Pulang</Label>
                                     <Input
                                         id="jam_pulang_mulai"
                                         type="time"
                                         value={data.jam_pulang_mulai}
                                         onChange={(e) => setData('jam_pulang_mulai', e.target.value)}
+                                        className="w-full sm:max-w-[240px]"
                                     />
-                                    <span className="text-[11px] text-muted-foreground block">
-                                        Siswa tidak boleh tap pulang sebelum waktu ini tiba.
-                                    </span>
+                                    <p className="text-[12px] text-muted-foreground leading-tight">
+                                        Siswa tidak diizinkan tap pulang sebelum waktu ini.
+                                    </p>
                                     {errors.jam_pulang_mulai && (
-                                        <p className="text-xs text-rose-500 font-semibold">{errors.jam_pulang_mulai}</p>
+                                        <p className="text-xs text-rose-500 font-medium">{errors.jam_pulang_mulai}</p>
                                     )}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="jam_pulang_selesai">Batas Maksimal Pulang</Label>
+                                <div className="space-y-2.5">
+                                    <Label htmlFor="jam_pulang_selesai">Jam Tutup Mesin</Label>
                                     <Input
                                         id="jam_pulang_selesai"
                                         type="time"
                                         value={data.jam_pulang_selesai}
                                         onChange={(e) => setData('jam_pulang_selesai', e.target.value)}
+                                        className="w-full sm:max-w-[240px]"
                                     />
-                                    <span className="text-[11px] text-muted-foreground block">
-                                        Waktu paling akhir tap pulang diizinkan oleh alat.
-                                    </span>
+                                    <p className="text-[12px] text-muted-foreground leading-tight">
+                                        Waktu paling akhir tap pulang diizinkan mesin.
+                                    </p>
                                     {errors.jam_pulang_selesai && (
-                                        <p className="text-xs text-rose-500 font-semibold">{errors.jam_pulang_selesai}</p>
+                                        <p className="text-xs text-rose-500 font-medium">{errors.jam_pulang_selesai}</p>
                                     )}
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Tombol Simpan */}
-                    <div className="flex justify-end gap-3">
+                    {/* Action Area */}
+                    <div className="flex items-center justify-end pt-2">
                         <Button
                             type="submit"
                             disabled={processing}
-                            className="px-6"
+                            className="px-8 flex items-center gap-2"
                         >
-                            {processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
+                            <Save className="h-4 w-4" />
+                            {processing ? 'Menyimpan Data...' : 'Simpan Pengaturan'}
                         </Button>
                     </div>
                 </form>
