@@ -14,7 +14,7 @@ class AbsensiSettingTest extends TestCase
 
     public function test_authenticated_user_can_access_settings_page()
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->get('/absensi/setting');
@@ -24,7 +24,7 @@ class AbsensiSettingTest extends TestCase
 
     public function test_authenticated_user_can_update_settings()
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = User::factory()->create();
         $setting = SettingAbsensi::create([
             'jam_masuk_mulai' => '06:00:00',

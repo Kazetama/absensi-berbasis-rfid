@@ -7,6 +7,7 @@ use App\Http\Requests\Api\AbsensiRequest;
 use App\Models\Absensi;
 use App\Models\SettingAbsensi;
 use App\Models\Siswa;
+use App\Services\FonnteService;
 use Carbon\Carbon;
 
 class AbsensiController extends Controller
@@ -65,12 +66,14 @@ class AbsensiController extends Controller
             $batas_masuk_ts = strtotime($setting->jam_masuk_batas);
             $status = ($sekarang_ts > $batas_masuk_ts) ? 'Terlambat' : 'Hadir';
 
-            Absensi::create([
+            $newAbsensi = Absensi::create([
                 'siswa_id' => $siswa->id,
                 'tanggal' => $tanggal,
                 'jam_masuk' => $jam_sekarang,
                 'status' => $status,
             ]);
+
+            $this->kirimNotifikasiAbsen($siswa, $newAbsensi, 'masuk');
 
             return response()->json(['message' => "Absensi masuk berhasil ($status) pada $jam_sekarang WIB"], 200);
         } elseif (! $absensi->jam_pulang) {
@@ -93,6 +96,8 @@ class AbsensiController extends Controller
             // Absensi pulang
             $absensi->jam_pulang = $jam_sekarang;
             $absensi->save();
+
+            $this->kirimNotifikasiAbsen($siswa, $absensi, 'pulang');
 
             return response()->json(['message' => "Absensi pulang berhasil pada $jam_sekarang WIB"], 200);
         } else {
@@ -120,5 +125,71 @@ class AbsensiController extends Controller
         $absensi = Absensi::query()->where('siswa_id', $siswa->id)->get();
 
         return response()->json($absensi);
+    }
+
+    /**
+     * Kirim notifikasi absensi via WhatsApp.
+     */
+    protected function kirimNotifikasiAbsen(Siswa $siswa, Absensi $absensi, string $tipe): void
+    {
+        $fonnteService = app(FonnteService::class);
+        $hari_tanggal = Carbon::parse($absensi->tanggal)->locale('id')->translatedFormat('l, d F Y');
+        $jam = substr($tipe === 'masuk' ? $absensi->jam_masuk : $absensi->jam_pulang, 0, 5);
+
+        if ($tipe === 'masuk') {
+            $statusStr = $absensi->status === 'Terlambat' ? '🔴 Terlambat' : '🟢 Hadir';
+            $message = "📢 *NOTIFIKASI ABSENSI MASUK*\n\n"
+                ."Yth. Orang Tua/Wali dari siswa:\n"
+                ."Nama: *{$siswa->nama}*\n"
+                ."NIS: {$siswa->nis}\n"
+                ."Kelas: {$siswa->kelas}\n\n"
+                ."Menginfokan bahwa putra/putri Anda telah melakukan absensi *MASUK* sekolah.\n"
+                ."📅 Hari, Tanggal: {$hari_tanggal}\n"
+                ."⏰ Waktu: {$jam} WIB\n"
+                ."📝 Status: {$statusStr}\n\n"
+                .'Terima kasih atas kerja samanya.';
+        } else {
+            $message = "📢 *NOTIFIKASI ABSENSI PULANG*\n\n"
+                ."Yth. Orang Tua/Wali dari siswa:\n"
+                ."Nama: *{$siswa->nama}*\n"
+                ."NIS: {$siswa->nis}\n"
+                ."Kelas: {$siswa->kelas}\n\n"
+                ."Menginfokan bahwa putra/putri Anda telah melakukan absensi *PULANG* sekolah dengan selamat.\n"
+                ."📅 Hari, Tanggal: {$hari_tanggal}\n"
+                ."⏰ Waktu: {$jam} WIB\n\n"
+                .'Terima kasih.';
+        }
+
+        // 1. Kirim ke nomor orang tua jika diisi
+        if (! empty($siswa->nomor_orangtua)) {
+            $fonnteService->send($siswa->nomor_orangtua, $message);
+        }
+
+        // 2. Kirim juga ke nomor tester user (085732198202) untuk monitoring/testing
+        $testPhone = '085732198202';
+        if ($this->cleanPhone($siswa->nomor_orangtua) !== $this->cleanPhone($testPhone)) {
+            $testMessage = "⚠️ *[TESTING COPY]* ⚠️\n".$message;
+            $fonnteService->send($testPhone, $testMessage);
+        }
+    }
+
+    /**
+     * Bersihkan format nomor telepon.
+     */
+    protected function cleanPhone(?string $phone): string
+    {
+        if (empty($phone)) {
+            return '';
+        }
+
+        // Hapus karakter non-digit
+        $cleaned = preg_replace('/\D/', '', $phone);
+
+        // Ubah awalan 0 menjadi 62
+        if (str_starts_with($cleaned, '0')) {
+            $cleaned = '62'.substr($cleaned, 1);
+        }
+
+        return $cleaned;
     }
 }

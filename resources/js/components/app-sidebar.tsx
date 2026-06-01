@@ -1,5 +1,12 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, ClipboardList, FolderGit2, LayoutGrid, Settings, User } from 'lucide-react';
+import {
+    BookOpen,
+    ClipboardList,
+    FolderGit2,
+    LayoutGrid,
+    Settings,
+    User,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -40,7 +47,7 @@ const mainNavItems: NavItem[] = [
         title: 'Pengaturan Absen',
         href: '/absensi/setting',
         icon: Settings,
-    }
+    },
 ];
 
 const footerNavItems: NavItem[] = [

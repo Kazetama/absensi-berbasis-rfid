@@ -1,8 +1,16 @@
-import { TableCell, TableRow } from "@/components/ui/table";
-import { Siswa } from "@/types/siswa";
-import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Trash2, User, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { router, useForm } from '@inertiajs/react';
+import { MoreHorizontal, Trash2, User, Pencil } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -10,22 +18,20 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
-import { router, useForm } from "@inertiajs/react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { TableCell, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import type { Siswa } from '@/types/siswa';
 
-export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number }) {
+export function SiswaTableRow({
+    siswa,
+    index,
+}: {
+    siswa: Siswa;
+    index: number;
+}) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -46,8 +52,22 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
         });
     };
 
+    const openEditDialog = () => {
+        setData({
+            nama: siswa.nama || '',
+            nis: siswa.nis || '',
+            kelas: siswa.kelas || '',
+            nomor_orangtua: siswa.nomor_orangtua || '',
+            alamat: siswa.alamat || '',
+            gambar: null,
+        });
+        setPreviewUrl(null);
+        setIsEditDialogOpen(true);
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+
         if (file) {
             setData('gambar', file);
             setPreviewUrl(URL.createObjectURL(file));
@@ -69,20 +89,6 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
     };
 
     useEffect(() => {
-        if (isEditDialogOpen) {
-            setData({
-                nama: siswa.nama || '',
-                nis: siswa.nis || '',
-                kelas: siswa.kelas || '',
-                nomor_orangtua: siswa.nomor_orangtua || '',
-                alamat: siswa.alamat || '',
-                gambar: null,
-            });
-            setPreviewUrl(null);
-        }
-    }, [isEditDialogOpen, siswa]);
-
-    useEffect(() => {
         return () => {
             if (previewUrl) {
                 URL.revokeObjectURL(previewUrl);
@@ -93,27 +99,42 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
     return (
         <>
             <TableRow>
-                <TableCell className="font-medium text-center">{index + 1}</TableCell>
-                <TableCell className="font-mono text-xs">{siswa.uid_kartu}</TableCell>
-                <TableCell>{siswa.nis || "-"}</TableCell>
+                <TableCell className="text-center font-medium">
+                    {index + 1}
+                </TableCell>
+                <TableCell className="font-mono text-xs">
+                    {siswa.uid_kartu}
+                </TableCell>
+                <TableCell>{siswa.nis || '-'}</TableCell>
                 <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
                             {siswa.gambar ? (
-                                <AvatarImage src={`/storage/${siswa.gambar}`} alt={siswa.nama || ''} className="object-cover" />
+                                <AvatarImage
+                                    src={`/storage/${siswa.gambar}`}
+                                    alt={siswa.nama || ''}
+                                    className="object-cover"
+                                />
                             ) : null}
-                            <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                {siswa.nama ? siswa.nama.substring(0, 2).toUpperCase() : '?' }
+                            <AvatarFallback className="bg-primary/10 text-xs text-primary">
+                                {siswa.nama
+                                    ? siswa.nama.substring(0, 2).toUpperCase()
+                                    : '?'}
                             </AvatarFallback>
                         </Avatar>
-                        <span>{siswa.nama || "-"}</span>
+                        <span>{siswa.nama || '-'}</span>
                     </div>
                 </TableCell>
-                <TableCell>{siswa.kelas || "-"}</TableCell>
-                <TableCell>{siswa.nomor_orangtua || "-"}</TableCell>
+                <TableCell>{siswa.kelas || '-'}</TableCell>
+                <TableCell>{siswa.nomor_orangtua || '-'}</TableCell>
                 <TableCell>
                     {siswa.nama && siswa.nis ? (
-                        <Badge variant="default" className="bg-green-500 hover:bg-green-600">Lengkap</Badge>
+                        <Badge
+                            variant="default"
+                            className="bg-green-500 hover:bg-green-600"
+                        >
+                            Lengkap
+                        </Badge>
                     ) : (
                         <Badge variant="destructive">Belum Lengkap</Badge>
                     )}
@@ -128,16 +149,21 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => setIsProfileOpen(true)}>
+                            <DropdownMenuItem
+                                onClick={() => setIsProfileOpen(true)}
+                            >
                                 <User className="mr-2 h-4 w-4" />
                                 Lihat Profile
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                            <DropdownMenuItem onClick={openEditDialog}>
                                 <Pencil className="mr-2 h-4 w-4" />
                                 Edit Data
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 focus:text-red-600">
+                            <DropdownMenuItem
+                                onClick={() => setIsDeleteDialogOpen(true)}
+                                className="text-red-600 focus:text-red-600"
+                            >
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Hapus Data
                             </DropdownMenuItem>
@@ -154,36 +180,62 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                             Informasi detail mengenai data siswa yang terdaftar.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex flex-col items-center gap-3 py-4 border-b">
+                    <div className="flex flex-col items-center gap-3 border-b py-4">
                         <Avatar className="h-24 w-24 border shadow-sm">
                             {siswa.gambar ? (
-                                <AvatarImage src={`/storage/${siswa.gambar}`} alt={siswa.nama || ''} className="object-cover" />
+                                <AvatarImage
+                                    src={`/storage/${siswa.gambar}`}
+                                    alt={siswa.nama || ''}
+                                    className="object-cover"
+                                />
                             ) : null}
-                            <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
-                                {siswa.nama ? siswa.nama.substring(0, 2).toUpperCase() : '?' }
+                            <AvatarFallback className="bg-primary/10 text-2xl font-bold text-primary">
+                                {siswa.nama
+                                    ? siswa.nama.substring(0, 2).toUpperCase()
+                                    : '?'}
                             </AvatarFallback>
                         </Avatar>
                         <div className="text-center">
-                            <h3 className="font-semibold text-lg">{siswa.nama || "Belum Ada Nama"}</h3>
-                            <p className="text-sm text-muted-foreground font-mono bg-muted px-2 py-0.5 rounded-full inline-block mt-1">{siswa.uid_kartu}</p>
+                            <h3 className="text-lg font-semibold">
+                                {siswa.nama || 'Belum Ada Nama'}
+                            </h3>
+                            <p className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 font-mono text-sm text-muted-foreground">
+                                {siswa.uid_kartu}
+                            </p>
                         </div>
                     </div>
                     <div className="grid gap-3 py-4">
                         <div className="grid grid-cols-3 items-center gap-4">
-                            <span className="font-medium text-sm text-muted-foreground">NIS</span>
-                            <span className="col-span-2 text-sm font-medium">{siswa.nis || "-"}</span>
+                            <span className="text-sm font-medium text-muted-foreground">
+                                NIS
+                            </span>
+                            <span className="col-span-2 text-sm font-medium">
+                                {siswa.nis || '-'}
+                            </span>
                         </div>
                         <div className="grid grid-cols-3 items-center gap-4">
-                            <span className="font-medium text-sm text-muted-foreground">Kelas</span>
-                            <span className="col-span-2 text-sm font-medium">{siswa.kelas || "-"}</span>
+                            <span className="text-sm font-medium text-muted-foreground">
+                                Kelas
+                            </span>
+                            <span className="col-span-2 text-sm font-medium">
+                                {siswa.kelas || '-'}
+                            </span>
                         </div>
                         <div className="grid grid-cols-3 items-center gap-4">
-                            <span className="font-medium text-sm text-muted-foreground">No. Telepon WA</span>
-                            <span className="col-span-2 text-sm font-medium">{siswa.nomor_orangtua || "-"}</span>
+                            <span className="text-sm font-medium text-muted-foreground">
+                                No. Telepon WA
+                            </span>
+                            <span className="col-span-2 text-sm font-medium">
+                                {siswa.nomor_orangtua || '-'}
+                            </span>
                         </div>
                         <div className="grid grid-cols-3 items-start gap-4">
-                            <span className="font-medium text-sm text-muted-foreground">Alamat</span>
-                            <span className="col-span-2 text-sm font-medium whitespace-pre-wrap">{siswa.alamat || "-"}</span>
+                            <span className="text-sm font-medium text-muted-foreground">
+                                Alamat
+                            </span>
+                            <span className="col-span-2 text-sm font-medium whitespace-pre-wrap">
+                                {siswa.alamat || '-'}
+                            </span>
                         </div>
                     </div>
                 </DialogContent>
@@ -194,7 +246,8 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                     <DialogHeader>
                         <DialogTitle>Edit Data Siswa</DialogTitle>
                         <DialogDescription>
-                            Perbarui informasi data siswa di bawah ini. UID Kartu tidak dapat diubah.
+                            Perbarui informasi data siswa di bawah ini. UID
+                            Kartu tidak dapat diubah.
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4 py-2">
@@ -205,7 +258,7 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                                 id="uid_kartu"
                                 value={siswa.uid_kartu}
                                 disabled
-                                className="bg-muted cursor-not-allowed font-mono opacity-80"
+                                className="cursor-not-allowed bg-muted font-mono opacity-80"
                             />
                         </div>
 
@@ -218,7 +271,11 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                                 onChange={(e) => setData('nis', e.target.value)}
                                 placeholder="Masukkan NIS..."
                             />
-                            {errors.nis && <p className="text-xs text-destructive">{errors.nis}</p>}
+                            {errors.nis && (
+                                <p className="text-xs text-destructive">
+                                    {errors.nis}
+                                </p>
+                            )}
                         </div>
 
                         {/* Nama Siswa */}
@@ -227,11 +284,17 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                             <Input
                                 id="nama"
                                 value={data.nama}
-                                onChange={(e) => setData('nama', e.target.value)}
+                                onChange={(e) =>
+                                    setData('nama', e.target.value)
+                                }
                                 placeholder="Masukkan Nama Siswa..."
                                 required
                             />
-                            {errors.nama && <p className="text-xs text-destructive">{errors.nama}</p>}
+                            {errors.nama && (
+                                <p className="text-xs text-destructive">
+                                    {errors.nama}
+                                </p>
+                            )}
                         </div>
 
                         {/* Kelas */}
@@ -240,22 +303,36 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                             <Input
                                 id="kelas"
                                 value={data.kelas}
-                                onChange={(e) => setData('kelas', e.target.value)}
+                                onChange={(e) =>
+                                    setData('kelas', e.target.value)
+                                }
                                 placeholder="Masukkan Kelas..."
                             />
-                            {errors.kelas && <p className="text-xs text-destructive">{errors.kelas}</p>}
+                            {errors.kelas && (
+                                <p className="text-xs text-destructive">
+                                    {errors.kelas}
+                                </p>
+                            )}
                         </div>
 
                         {/* No Telepon Orangtua */}
                         <div className="space-y-2">
-                            <Label htmlFor="nomor_orangtua">No. Telepon Orang Tua</Label>
+                            <Label htmlFor="nomor_orangtua">
+                                No. Telepon Orang Tua
+                            </Label>
                             <Input
                                 id="nomor_orangtua"
                                 value={data.nomor_orangtua}
-                                onChange={(e) => setData('nomor_orangtua', e.target.value)}
+                                onChange={(e) =>
+                                    setData('nomor_orangtua', e.target.value)
+                                }
                                 placeholder="Masukkan nomor telepon whatsapp..."
                             />
-                            {errors.nomor_orangtua && <p className="text-xs text-destructive">{errors.nomor_orangtua}</p>}
+                            {errors.nomor_orangtua && (
+                                <p className="text-xs text-destructive">
+                                    {errors.nomor_orangtua}
+                                </p>
+                            )}
                         </div>
 
                         {/* Alamat */}
@@ -264,24 +341,42 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                             <Textarea
                                 id="alamat"
                                 value={data.alamat}
-                                onChange={(e) => setData('alamat', e.target.value)}
+                                onChange={(e) =>
+                                    setData('alamat', e.target.value)
+                                }
                                 placeholder="Masukkan alamat lengkap..."
                             />
-                            {errors.alamat && <p className="text-xs text-destructive">{errors.alamat}</p>}
+                            {errors.alamat && (
+                                <p className="text-xs text-destructive">
+                                    {errors.alamat}
+                                </p>
+                            )}
                         </div>
 
                         {/* Foto / Gambar Siswa */}
                         <div className="space-y-2">
                             <Label htmlFor="gambar">Foto Siswa</Label>
                             <div className="flex items-center gap-4">
-                                <Avatar className="h-16 w-16 border animate-in fade-in zoom-in-95 duration-200">
+                                <Avatar className="h-16 w-16 animate-in border duration-200 zoom-in-95 fade-in">
                                     {previewUrl ? (
-                                        <AvatarImage src={previewUrl} className="object-cover" />
+                                        <AvatarImage
+                                            src={previewUrl}
+                                            className="object-cover"
+                                        />
                                     ) : (
-                                        siswa.gambar && <AvatarImage src={`/storage/${siswa.gambar}`} className="object-cover" />
+                                        siswa.gambar && (
+                                            <AvatarImage
+                                                src={`/storage/${siswa.gambar}`}
+                                                className="object-cover"
+                                            />
+                                        )
                                     )}
-                                    <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                                        {data.nama ? data.nama.substring(0, 2).toUpperCase() : '?' }
+                                    <AvatarFallback className="bg-primary/10 text-lg text-primary">
+                                        {data.nama
+                                            ? data.nama
+                                                  .substring(0, 2)
+                                                  .toUpperCase()
+                                            : '?'}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="grid w-full items-center gap-1.5">
@@ -292,34 +387,57 @@ export function SiswaTableRow({ siswa, index }: { siswa: Siswa, index: number })
                                         onChange={handleFileChange}
                                         className="cursor-pointer"
                                     />
-                                    <span className="text-xs text-muted-foreground">Format: JPG, JPEG, PNG. Maks: 2MB</span>
+                                    <span className="text-xs text-muted-foreground">
+                                        Format: JPG, JPEG, PNG. Maks: 2MB
+                                    </span>
                                 </div>
                             </div>
-                            {errors.gambar && <p className="text-xs text-destructive">{errors.gambar}</p>}
+                            {errors.gambar && (
+                                <p className="text-xs text-destructive">
+                                    {errors.gambar}
+                                </p>
+                            )}
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t">
-                            <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                        <div className="flex justify-end gap-3 border-t pt-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsEditDialogOpen(false)}
+                            >
                                 Batal
                             </Button>
                             <Button type="submit" disabled={processing}>
-                                {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                {processing
+                                    ? 'Menyimpan...'
+                                    : 'Simpan Perubahan'}
                             </Button>
                         </div>
                     </form>
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <Dialog
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Konfirmasi Hapus Data</DialogTitle>
                         <DialogDescription>
-                            Apakah Anda yakin ingin menghapus data siswa <strong className="text-foreground">{siswa.nama || siswa.uid_kartu}</strong>? Tindakan ini tidak dapat dibatalkan dan data akan dihapus secara permanen dari sistem.
+                            Apakah Anda yakin ingin menghapus data siswa{' '}
+                            <strong className="text-foreground">
+                                {siswa.nama || siswa.uid_kartu}
+                            </strong>
+                            ? Tindakan ini tidak dapat dibatalkan dan data akan
+                            dihapus secara permanen dari sistem.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-end gap-3 pt-4">
-                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                        >
                             Batal
                         </Button>
                         <Button variant="destructive" onClick={handleDelete}>
