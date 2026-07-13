@@ -30,36 +30,28 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
-
     {
-        title: 'Siswa',
-        href: siswa.index(),
+        title: 'Management Siswa',
+        href: '#',
         icon: User,
-    },
-
-    {
-        title: 'Rekap Absensi',
-        href: '/absensi/rekap',
-        icon: ClipboardList,
-    },
-
-    {
-        title: 'Pengaturan Absen',
-        href: '/absensi/setting',
-        icon: Settings,
+        items: [
+            {
+                title: 'Siswa',
+                href: siswa.index(),
+            },
+            {
+                title: 'Rekap Absensi',
+                href: '/absensi/rekap',
+            },
+        ],
     },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
+        title: 'Pengaturan Absen',
+        href: '/absensi/setting',
+        icon: Settings,
     },
 ];
 
