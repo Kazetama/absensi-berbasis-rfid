@@ -1,7 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { SiswaTable } from '@/components/siswa/siswa-table';
+import { MahasiswaTable } from '@/components/mahasiswa/mahasiswa-table';
 import {
     Card,
     CardContent,
@@ -17,10 +17,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import type { PaginatedData, Siswa } from '@/types/siswa';
+import type { PaginatedData, Mahasiswa } from '@/types/mahasiswa';
 
 interface Props {
-    siswas: PaginatedData<Siswa>;
+    mahasiswas: PaginatedData<Mahasiswa>;
     filters: {
         search: string;
         kelas: string;
@@ -28,14 +28,14 @@ interface Props {
     kelasList: string[];
 }
 
-export default function SiswaIndex({ siswas, filters, kelasList }: Props) {
+export default function MahasiswaIndex({ mahasiswas, filters, kelasList }: Props) {
     const [search, setSearch] = useState(filters.search);
     const [kelas, setKelas] = useState(filters.kelas);
 
     // Fungsi untuk memperbarui URL dengan parameter filter
     const applyFilters = (searchVal: string, kelasVal: string) => {
         router.get(
-            '/siswa',
+            '/mahasiswa',
             { search: searchVal, kelas: kelasVal },
             {
                 preserveState: true,
@@ -65,16 +65,16 @@ export default function SiswaIndex({ siswas, filters, kelasList }: Props) {
 
     return (
         <>
-            <Head title="Data Siswa" />
+            <Head title="Data Mahasiswa" />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <Card className="border-sidebar-border/70 shadow-sm dark:border-sidebar-border">
                     {/* Mengubah CardHeader menjadi Flex Container untuk Title (Kiri) dan Filter (Kanan) */}
                     <CardHeader className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="space-y-1.5">
-                            <CardTitle>Daftar Siswa</CardTitle>
+                            <CardTitle>Daftar Mahasiswa</CardTitle>
                             <CardDescription>
-                                Daftar semua siswa yang terdaftar dalam sistem
+                                Daftar semua mahasiswa yang terdaftar dalam sistem
                                 absensi RFID.
                             </CardDescription>
                         </div>
@@ -85,7 +85,7 @@ export default function SiswaIndex({ siswas, filters, kelasList }: Props) {
                                 <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     type="text"
-                                    placeholder="Cari nama, NIS, atau UID..."
+                                    placeholder="Cari nama, NIM, atau UID..."
                                     className="w-full pl-8"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
@@ -115,7 +115,7 @@ export default function SiswaIndex({ siswas, filters, kelasList }: Props) {
                     </CardHeader>
 
                     <CardContent>
-                        <SiswaTable siswas={siswas} />
+                        <MahasiswaTable mahasiswas={mahasiswas} />
                     </CardContent>
                 </Card>
             </div>
@@ -123,11 +123,11 @@ export default function SiswaIndex({ siswas, filters, kelasList }: Props) {
     );
 }
 
-SiswaIndex.layout = {
+MahasiswaIndex.layout = {
     breadcrumbs: [
         {
-            title: 'Data Siswa',
-            href: '/siswa',
+            title: 'Data Mahasiswa',
+            href: '/mahasiswa',
         },
     ],
 };

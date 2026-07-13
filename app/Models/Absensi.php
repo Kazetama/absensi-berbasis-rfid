@@ -10,16 +10,21 @@ class Absensi extends Model
     use HasFactory;
 
     protected $fillable = [
-        'siswa_id',
+        'mahasiswa_id',
         'tanggal',
         'jam_masuk',
         'jam_pulang',
         'status',
     ];
 
-    // Relasi: Absensi milik satu siswa
+    // Relasi: Absensi milik satu mahasiswa
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
+    }
+
+    public function mahasiswa()
+    {
+        return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
 }

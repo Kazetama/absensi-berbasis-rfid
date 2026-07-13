@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Absensi;
-use App\Models\Siswa;
+use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,14 +12,14 @@ class AbsensiWebController extends Controller
 {
     public function rekap()
     {
-        $classes = Siswa::query()
+        $classes = Mahasiswa::query()
             ->select('kelas')
             ->whereNotNull('kelas')
             ->groupBy('kelas')
             ->get()
-            ->map(function ($siswa) {
-                $kelas = $siswa->kelas;
-                $totalSiswa = Siswa::where('kelas', $kelas)->count();
+            ->map(function ($mahasiswa) {
+                $kelas = $mahasiswa->kelas;
+                $totalMahasiswa = Mahasiswa::where('kelas', $kelas)->count();
                 $totalAbsen = Absensi::whereHas('siswa', function ($q) use ($kelas) {
                     $q->where('kelas', $kelas);
                 })->count();
@@ -29,7 +29,7 @@ class AbsensiWebController extends Controller
 
                 return [
                     'kelas' => $kelas,
-                    'total_siswa' => $totalSiswa,
+                    'total_siswa' => $totalMahasiswa,
                     'total_absen' => $totalAbsen,
                     'hadir_hari_ini' => $hadirHariIni,
                 ];

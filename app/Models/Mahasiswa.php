@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Siswa extends Model
+class Mahasiswa extends Model
 {
     use HasFactory;
 
-    protected $table = 'siswas';
+    protected $table = 'mahasiswas';
 
     protected $fillable = [
         'uid_kartu',
@@ -18,7 +18,7 @@ class Siswa extends Model
         'nomor_orangtua',
         'alamat',
         'kelas',
-        'nis',
+        'nim',
     ];
 
     // Relasi: Satu siswa memiliki banyak absensi

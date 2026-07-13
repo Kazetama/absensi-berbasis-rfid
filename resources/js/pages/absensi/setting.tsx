@@ -246,7 +246,7 @@ export default function AbsensiSetting({ setting }: Props) {
                                         className="w-full sm:max-w-[240px]"
                                     />
                                     <p className="text-[12px] leading-tight text-muted-foreground">
-                                        Siswa tidak diizinkan tap pulang sebelum
+                                        Mahasiswa tidak diizinkan tap pulang sebelum
                                         waktu ini.
                                     </p>
                                     {errors.jam_pulang_mulai && (

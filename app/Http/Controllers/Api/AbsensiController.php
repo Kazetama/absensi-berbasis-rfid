@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\AbsensiRequest;
 use App\Models\Absensi;
+use App\Models\Mahasiswa;
 use App\Models\SettingAbsensi;
-use App\Models\Siswa;
 use App\Services\FonnteService;
 use Carbon\Carbon;
 
@@ -15,7 +15,7 @@ class AbsensiController extends Controller
     // Menyimpan absensi masuk atau pulang
     public function absen(AbsensiRequest $request)
     {
-        $siswa = Siswa::query()->where('uid_kartu', $request->uid_kartu)->first();
+        $siswa = Mahasiswa::query()->where('uid_kartu', $request->uid_kartu)->first();
 
         if (! $siswa) {
             // Celah Keamanan Ditutup: Tolak kartu yang tidak terdaftar
@@ -42,7 +42,7 @@ class AbsensiController extends Controller
 
         $tanggal = Carbon::today()->toDateString();
         $jam_sekarang = Carbon::now()->format('H:i:s');
-        $absensi = Absensi::query()->where('siswa_id', $siswa->id)->where('tanggal', $tanggal)->first();
+        $absensi = Absensi::query()->where('mahasiswa_id', $siswa->id)->where('tanggal', $tanggal)->first();
 
         $sekarang_ts = strtotime($jam_sekarang);
 
@@ -67,7 +67,7 @@ class AbsensiController extends Controller
             $status = ($sekarang_ts > $batas_masuk_ts) ? 'Terlambat' : 'Hadir';
 
             $newAbsensi = Absensi::create([
-                'siswa_id' => $siswa->id,
+                'mahasiswa_id' => $siswa->id,
                 'tanggal' => $tanggal,
                 'jam_masuk' => $jam_sekarang,
                 'status' => $status,
@@ -116,13 +116,13 @@ class AbsensiController extends Controller
     // Mendapatkan riwayat absensi siswa berdasarkan UID
     public function getAbsensiByUID(string $uid_kartu)
     {
-        $siswa = Siswa::query()->where('uid_kartu', $uid_kartu)->first();
+        $siswa = Mahasiswa::query()->where('uid_kartu', $uid_kartu)->first();
 
         if (! $siswa) {
-            return response()->json(['message' => 'Siswa tidak ditemukan'], 404);
+            return response()->json(['message' => 'Mahasiswa tidak ditemukan'], 404);
         }
 
-        $absensi = Absensi::query()->where('siswa_id', $siswa->id)->get();
+        $absensi = Absensi::query()->where('mahasiswa_id', $siswa->id)->get();
 
         return response()->json($absensi);
     }
@@ -130,7 +130,7 @@ class AbsensiController extends Controller
     /**
      * Kirim notifikasi absensi via WhatsApp.
      */
-    protected function kirimNotifikasiAbsen(Siswa $siswa, Absensi $absensi, string $tipe): void
+    protected function kirimNotifikasiAbsen(Mahasiswa $siswa, Absensi $absensi, string $tipe): void
     {
         $fonnteService = app(FonnteService::class);
         $hari_tanggal = Carbon::parse($absensi->tanggal)->locale('id')->translatedFormat('l, d F Y');
@@ -139,22 +139,22 @@ class AbsensiController extends Controller
         if ($tipe === 'masuk') {
             $statusStr = $absensi->status === 'Terlambat' ? '🔴 Terlambat' : '🟢 Hadir';
             $message = "📢 *NOTIFIKASI ABSENSI MASUK*\n\n"
-                ."Yth. Orang Tua/Wali dari siswa:\n"
+                ."Yth. Orang Tua/Wali dari mahasiswa:\n"
                 ."Nama: *{$siswa->nama}*\n"
-                ."NIS: {$siswa->nis}\n"
+                ."NIM: {$siswa->nim}\n"
                 ."Kelas: {$siswa->kelas}\n\n"
-                ."Menginfokan bahwa putra/putri Anda telah melakukan absensi *MASUK* sekolah.\n"
+                ."Menginfokan bahwa putra/putri Anda telah melakukan absensi *MASUK* kampus.\n"
                 ."📅 Hari, Tanggal: {$hari_tanggal}\n"
                 ."⏰ Waktu: {$jam} WIB\n"
                 ."📝 Status: {$statusStr}\n\n"
                 .'Terima kasih atas kerja samanya.';
         } else {
             $message = "📢 *NOTIFIKASI ABSENSI PULANG*\n\n"
-                ."Yth. Orang Tua/Wali dari siswa:\n"
+                ."Yth. Orang Tua/Wali dari mahasiswa:\n"
                 ."Nama: *{$siswa->nama}*\n"
-                ."NIS: {$siswa->nis}\n"
+                ."NIM: {$siswa->nim}\n"
                 ."Kelas: {$siswa->kelas}\n\n"
-                ."Menginfokan bahwa putra/putri Anda telah melakukan absensi *PULANG* sekolah dengan selamat.\n"
+                ."Menginfokan bahwa putra/putri Anda telah melakukan absensi *PULANG* kampus dengan selamat.\n"
                 ."📅 Hari, Tanggal: {$hari_tanggal}\n"
                 ."⏰ Waktu: {$jam} WIB\n\n"
                 .'Terima kasih.';

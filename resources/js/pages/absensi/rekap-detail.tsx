@@ -23,7 +23,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import type { PaginatedData, Siswa } from '@/types/siswa';
+import type { PaginatedData, Mahasiswa } from '@/types/mahasiswa';
 
 interface Absensi {
     id: number;
@@ -34,7 +34,7 @@ interface Absensi {
     status: 'Hadir' | 'Terlambat' | 'Tidak Hadir' | null;
     created_at: string;
     updated_at: string;
-    siswa: Siswa;
+    siswa: Mahasiswa;
 }
 
 interface Props {
@@ -118,7 +118,7 @@ export default function RekapDetail({ kelas, absensi, filters }: Props) {
                             </h1>
                         </div>
                         <p className="ml-10 text-sm text-muted-foreground">
-                            Histori lengkap absensi masuk dan pulang siswa untuk
+                            Histori lengkap absensi masuk dan pulang mahasiswa untuk
                             kelas {kelas}.
                         </p>
                     </div>
@@ -139,7 +139,7 @@ export default function RekapDetail({ kelas, absensi, filters }: Props) {
                             <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="text"
-                                placeholder="Cari nama siswa atau NIS..."
+                                placeholder="Cari nama mahasiswa atau NIM..."
                                 className="pl-8"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
@@ -177,8 +177,8 @@ export default function RekapDetail({ kelas, absensi, filters }: Props) {
                                             <TableHead className="w-[50px] text-center">
                                                 No
                                             </TableHead>
-                                            <TableHead>NIS</TableHead>
-                                            <TableHead>Nama Siswa</TableHead>
+                                            <TableHead>NIM</TableHead>
+                                            <TableHead>Nama Mahasiswa</TableHead>
                                             <TableHead>Tanggal</TableHead>
                                             <TableHead>Jam Masuk</TableHead>
                                             <TableHead>Jam Pulang</TableHead>
@@ -197,11 +197,11 @@ export default function RekapDetail({ kelas, absensi, filters }: Props) {
                                                             1}
                                                     </TableCell>
                                                     <TableCell className="font-mono text-xs">
-                                                        {item.siswa?.nis || '-'}
+                                                        {item.siswa?.nim || '-'}
                                                     </TableCell>
                                                     <TableCell className="font-semibold">
                                                         {item.siswa?.nama ||
-                                                            'Siswa Belum Terdaftar'}
+                                                            'Mahasiswa Belum Terdaftar'}
                                                     </TableCell>
                                                     <TableCell>
                                                         {item.tanggal}

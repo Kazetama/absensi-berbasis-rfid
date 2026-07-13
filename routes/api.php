@@ -1,14 +1,14 @@
 <?php
 
 use App\Http\Controllers\Api\AbsensiController;
-use App\Http\Controllers\Api\SiswaController;
+use App\Http\Controllers\Api\MahasiswaController;
 use Illuminate\Support\Facades\Route;
 
-// API untuk siswa
-Route::post('/register-rfid', [SiswaController::class, 'registerRFID']);
-Route::put('/update-siswa/{id}', [SiswaController::class, 'updateSiswa']);
-Route::get('/siswa', [SiswaController::class, 'getAllSiswa']);
-Route::get('/siswa/{uid_kartu}', [SiswaController::class, 'getSiswaByUID']);
+// API untuk mahasiswa
+Route::post('/register-rfid', [MahasiswaController::class, 'registerRFID']);
+Route::put('/update-mahasiswa/{id}', [MahasiswaController::class, 'updateMahasiswa']);
+Route::get('/mahasiswa', [MahasiswaController::class, 'getAllMahasiswa']);
+Route::get('/mahasiswa/{uid_kartu}', [MahasiswaController::class, 'getMahasiswaByUID']);
 
 // API untuk absensi
 Route::post('/absen', [AbsensiController::class, 'absen']);

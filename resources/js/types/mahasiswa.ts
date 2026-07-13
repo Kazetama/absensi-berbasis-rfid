@@ -13,12 +13,12 @@ export interface PaginatedData<T> {
     total: number;
 }
 
-export interface Siswa {
+export interface Mahasiswa {
     id: number;
     uid_kartu: string;
     nama: string | null;
     gambar: string | null;
-    nis: string | null;
+    nim: string | null;
     nomor_orangtua: string | null;
     alamat: string | null;
     kelas: string | null;

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class DashboardTest extends TestCase
@@ -23,5 +24,12 @@ class DashboardTest extends TestCase
 
         $response = $this->get(route('dashboard'));
         $response->assertOk();
+
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('dashboard')
+            ->has('stats')
+            ->has('chartData')
+            ->has('recentActivities')
+        );
     }
 }

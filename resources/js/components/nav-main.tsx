@@ -48,7 +48,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                             isActive={isSubItemActive}
                                         >
                                             {item.icon && <item.icon />}
-                                            <span>{item.title}</span>
+                                            <span className="truncate">{item.title}</span>
                                             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                         </SidebarMenuButton>
                                     </CollapsibleTrigger>

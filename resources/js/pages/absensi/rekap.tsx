@@ -31,7 +31,7 @@ export default function RekapAbsensi({ classes }: Props) {
                     </h1>
                     <p className="text-sm text-muted-foreground">
                         Pilih kelas untuk melihat histori dan detail absensi
-                        siswa secara berkala.
+                        mahasiswa secara berkala.
                     </p>
                 </div>
 
@@ -42,7 +42,7 @@ export default function RekapAbsensi({ classes }: Props) {
                             Belum Ada Data Kelas
                         </CardTitle>
                         <CardDescription>
-                            Pastikan data siswa telah diinput dan memiliki kelas
+                            Pastikan data mahasiswa telah diinput dan memiliki kelas
                             yang terdaftar.
                         </CardDescription>
                     </Card>
@@ -79,7 +79,7 @@ export default function RekapAbsensi({ classes }: Props) {
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-xs text-muted-foreground">
-                                                        Siswa
+                                                        Mahasiswa
                                                     </span>
                                                     <span className="text-sm font-semibold">
                                                         {c.total_siswa} orang

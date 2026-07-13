@@ -8,10 +8,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import type { PaginatedData, Siswa } from '@/types/siswa';
-import { SiswaTableRow } from './siswa-table-row';
+import type { PaginatedData, Mahasiswa } from '@/types/mahasiswa';
+import { MahasiswaTableRow } from './mahasiswa-table-row';
 
-export function SiswaTable({ siswas }: { siswas: PaginatedData<Siswa> }) {
+export function MahasiswaTable({ mahasiswas }: { mahasiswas: PaginatedData<Mahasiswa> }) {
     return (
         <div className="flex flex-col gap-4">
             <div className="rounded-md border">
@@ -22,8 +22,8 @@ export function SiswaTable({ siswas }: { siswas: PaginatedData<Siswa> }) {
                                 No
                             </TableHead>
                             <TableHead>UID Kartu</TableHead>
-                            <TableHead>NIS</TableHead>
-                            <TableHead>Nama Siswa</TableHead>
+                            <TableHead>NIM</TableHead>
+                            <TableHead>Nama Mahasiswa</TableHead>
                             <TableHead>Kelas</TableHead>
                             <TableHead>No. Telepon</TableHead>
                             <TableHead>Status Data</TableHead>
@@ -31,14 +31,14 @@ export function SiswaTable({ siswas }: { siswas: PaginatedData<Siswa> }) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {siswas.data.length > 0 ? (
-                            siswas.data.map((siswa, index) => (
-                                <SiswaTableRow
-                                    key={siswa.id}
-                                    siswa={siswa}
+                        {mahasiswas.data.length > 0 ? (
+                            mahasiswas.data.map((mahasiswa, index) => (
+                                <MahasiswaTableRow
+                                    key={mahasiswa.id}
+                                    siswa={mahasiswa}
                                     index={
-                                        (siswas.current_page - 1) *
-                                            siswas.per_page +
+                                        (mahasiswas.current_page - 1) *
+                                            mahasiswas.per_page +
                                         index
                                     }
                                 />
@@ -49,7 +49,7 @@ export function SiswaTable({ siswas }: { siswas: PaginatedData<Siswa> }) {
                                     colSpan={8}
                                     className="h-24 text-center"
                                 >
-                                    Belum ada data siswa terdaftar.
+                                    Belum ada data mahasiswa terdaftar.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -58,14 +58,14 @@ export function SiswaTable({ siswas }: { siswas: PaginatedData<Siswa> }) {
             </div>
 
             {/* Kontrol Pagination */}
-            {siswas.last_page > 1 && (
+            {mahasiswas.last_page > 1 && (
                 <div className="flex flex-col-reverse items-center justify-between gap-4 py-2 sm:flex-row">
                     <div className="text-sm text-muted-foreground">
-                        Menampilkan {siswas.from || 0} hingga {siswas.to || 0}{' '}
-                        dari {siswas.total} data
+                        Menampilkan {mahasiswas.from || 0} hingga {mahasiswas.to || 0}{' '}
+                        dari {mahasiswas.total} data
                     </div>
                     <div className="flex flex-wrap items-center justify-center gap-1">
-                        {siswas.links.map((link, i) =>
+                        {mahasiswas.links.map((link, i) =>
                             link.url ? (
                                 <Button
                                     key={i}

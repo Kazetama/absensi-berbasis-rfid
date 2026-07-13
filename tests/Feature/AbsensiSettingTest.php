@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Mahasiswa;
 use App\Models\SettingAbsensi;
-use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -60,10 +60,10 @@ class AbsensiSettingTest extends TestCase
         // Setup API Key Wemos
         config(['app.api_key_wemos' => 'wemos_secret_key_123']);
 
-        $siswa = Siswa::create([
+        $siswa = Mahasiswa::create([
             'uid_kartu' => 'ABC123XYZ',
             'nama' => 'John Doe',
-            'nis' => '101',
+            'nim' => 'F11.2023.00101',
             'kelas' => 'XII RPL 1',
         ]);
 

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Mahasiswa;
 use App\Models\SettingAbsensi;
-use App\Models\Siswa;
 use App\Services\FonnteService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -36,10 +36,10 @@ class FonnteNotificationTest extends TestCase
         // Set time to be within jam masuk (e.g. 07:00:00)
         Carbon::setTestNow(Carbon::today()->setTime(7, 0, 0));
 
-        $siswa = Siswa::create([
+        $siswa = Mahasiswa::create([
             'uid_kartu' => 'UID_KARTU_TEST_123',
             'nama' => 'Budi Santoso',
-            'nis' => '12345',
+            'nim' => 'F11.2023.12345',
             'kelas' => 'X RPL 1',
             'nomor_orangtua' => '081234567890',
         ]);
@@ -78,10 +78,10 @@ class FonnteNotificationTest extends TestCase
 
     public function test_attendance_pulang_sends_whatsapp_notification_to_parent_and_tester(): void
     {
-        $siswa = Siswa::create([
+        $siswa = Mahasiswa::create([
             'uid_kartu' => 'UID_KARTU_TEST_123',
             'nama' => 'Budi Santoso',
-            'nis' => '12345',
+            'nim' => 'F11.2023.12345',
             'kelas' => 'X RPL 1',
             'nomor_orangtua' => '081234567890',
         ]);

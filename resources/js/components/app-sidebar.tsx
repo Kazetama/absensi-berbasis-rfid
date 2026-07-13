@@ -21,7 +21,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import siswa from '@/routes/siswa';
+import mahasiswa from '@/routes/mahasiswa';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -31,13 +31,13 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Management Siswa',
+        title: 'Management Data',
         href: '#',
         icon: User,
         items: [
             {
-                title: 'Siswa',
-                href: siswa.index(),
+                title: 'Mahasiswa',
+                href: mahasiswa.index(),
             },
             {
                 title: 'Rekap Absensi',
